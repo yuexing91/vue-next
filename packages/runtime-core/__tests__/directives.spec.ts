@@ -395,4 +395,38 @@ describe('directives', () => {
     expect(beforeUpdate).toHaveBeenCalledTimes(1)
     expect(count.value).toBe(1)
   })
+
+  test('allow dynamic binding directive', async () => {
+    let oldValue
+    const flag = ref(0)
+    const dir1 = {
+      beforeUpdate: (el: any, bingding: any) => {
+        oldValue = bingding.oldValue
+      }
+    }
+    const dir2 = {
+      beforeUpdate: (el: any) => {
+      }
+    }
+
+    const App = {
+      render() {
+        const dirs: any = [
+          [dir1, flag.value]
+        ]
+        if (flag.value) {
+          dirs.push([dir2])
+        }
+        return withDirectives(h('p'), dirs)
+      }
+    }
+
+    const root = nodeOps.createElement('div')
+    render(h(App), root)
+
+    flag.value = 1
+    await nextTick()
+    expect(oldValue).toBe(0)
+  })
+
 })

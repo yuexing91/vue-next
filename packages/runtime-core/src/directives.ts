@@ -1,15 +1,15 @@
 /**
-Runtime helper for applying directives to a vnode. Example usage:
+ Runtime helper for applying directives to a vnode. Example usage:
 
-const comp = resolveComponent('comp')
-const foo = resolveDirective('foo')
-const bar = resolveDirective('bar')
+ const comp = resolveComponent('comp')
+ const foo = resolveDirective('foo')
+ const bar = resolveDirective('bar')
 
-return withDirectives(h(comp), [
-  [foo, this.x],
-  [bar, this.y]
-])
-*/
+ return withDirectives(h(comp), [
+ [foo, this.x],
+ [bar, this.y]
+ ])
+ */
 
 import { VNode } from './vnode'
 import { isFunction, EMPTY_OBJ, makeMap } from '@vue/shared'
@@ -74,12 +74,10 @@ export function validateDirectiveName(name: string) {
 }
 
 // Directive, value, argument, modifiers
-export type DirectiveArguments = Array<
-  | [Directive]
+export type DirectiveArguments = Array<| [Directive]
   | [Directive, any]
   | [Directive, any, string]
-  | [Directive, any, string, DirectiveModifiers]
->
+  | [Directive, any, string, DirectiveModifiers]>
 
 /**
  * Adds directives to a VNode.
@@ -126,10 +124,13 @@ export function invokeDirectiveHook(
 ) {
   const bindings = vnode.dirs!
   const oldBindings = prevVNode && prevVNode.dirs!
+  const oldValueMap = new WeakMap()
+  oldBindings && oldBindings.forEach(oldBinding => oldValueMap.set(oldBinding.dir, oldBinding.value))
+
   for (let i = 0; i < bindings.length; i++) {
     const binding = bindings[i]
-    if (oldBindings) {
-      binding.oldValue = oldBindings[i].value
+    if (oldValueMap.has(binding.dir)) {
+      binding.oldValue = oldValueMap.get(binding.dir)
     }
     let hook = binding.dir[name] as DirectiveHook | DirectiveHook[] | undefined
     if (__COMPAT__ && !hook) {
